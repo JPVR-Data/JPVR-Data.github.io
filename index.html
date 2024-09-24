@@ -22,23 +22,28 @@
         <button onclick="window.print()">Imprimir Ticket</button>
     </div>
 
-    <script>
-        const validRUCs = ['12345678901', '98765432109']; // Ejemplo de lista de RUCs
+<script>
+    document.getElementById('rucForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const ruc = document.getElementById('ruc').value;
+        const currentDate = new Date().toLocaleDateString();
 
-        document.getElementById('rucForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const ruc = document.getElementById('ruc').value;
-            const ticketText = document.getElementById('ticketText');
-            const ticket = document.getElementById('ticket');
-            const currentDate = new Date().toLocaleDateString();
-
-            if (validRUCs.includes(ruc)) {
-                ticketText.innerHTML = `Fecha: ${currentDate}<br>RUC: ${ruc}<br>Este usuario tiene permiso de makro apoyo`;
-                ticket.style.display = 'block';
+        fetch('https://script.google.com/macros/s/AKfycbxV52AGiodyPHNNOzF6SD4lnmG4JnN7PywuN_52fRK65-8BdW3ZKQ4mMT09ColxhTuo/exec', {
+            method: 'POST',
+            body: JSON.stringify({ ruc: ruc }),
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.valid) {
+                document.getElementById('ticketText').innerHTML = `Fecha: ${currentDate}<br>RUC: ${ruc}<br>Este usuario tiene permiso de makro apoyo`;
+                document.getElementById('ticket').style.display = 'block';
             } else {
                 alert('RUC no válido');
             }
-        });
-    </script>
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
 </body>
 </html>
