@@ -3,11 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validación de RUC JP </title>
+    <title>Validación de RUC JP</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; }
         #ticket { display: none; }
     </style>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBWdCgNMZLE_ZqXvx_Jxv_sD3JWV4qi7Uw",
+            authDomain: "bd-ma-2.firebaseapp.com",
+            projectId: "bd-ma-2",
+            storageBucket: "bd-ma-2.appspot.com",
+            messagingSenderId: "738183875337",
+            appId: "1:738183875337:web:8ccb96d37561a2122361d8",
+            measurementId: "G-D2Y210LBN8"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function validateRUC(ruc) {
+            const rucCollection = collection(db, 'validacionRUC');
+            const rucDocs = await getDocs(rucCollection);
+            return rucDocs.docs.some(doc => doc.data().RUC === ruc);
+        }
+
+        async function saveRUC(ruc) {
+            const currentDate = new Date().toLocaleString();
+            await addDoc(collection(db, 'registroRUC'), {
+                Fecha: currentDate,
+                RUC: ruc
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('rucForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const ruc = document.getElementById('ruc').value;
+                const ticketText = document.getElementById('ticketText');
+                const ticket = document.getElementById('ticket');
+
+                const isValid = await validateRUC(ruc);
+                if (isValid) {
+                    ticketText.innerHTML = `Fecha: ${new Date().toLocaleDateString()}<br>RUC: ${ruc}<br>Este usuario tiene permiso de makro apoyo`;
+                    ticket.style.display = 'block';
+                    await saveRUC(ruc);
+                } else {
+                    alert('RUC no válido');
+                }
+            });
+        });
+    </script>
 </head>
 <body>
     <h1>Validación de RUC</h1>
@@ -21,24 +73,5 @@
         <p id="ticketText"></p>
         <button onclick="window.print()">Imprimir Ticket</button>
     </div>
-
-    <script>
-        const validRUCs = ['12345678901', '98765432109']; // Ejemplo de lista de RUCs
-
-        document.getElementById('rucForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const ruc = document.getElementById('ruc').value;
-            const ticketText = document.getElementById('ticketText');
-            const ticket = document.getElementById('ticket');
-            const currentDate = new Date().toLocaleDateString();
-
-            if (validRUCs.includes(ruc)) {
-                ticketText.innerHTML = `Fecha: ${currentDate}<br>RUC: ${ruc}<br>Este usuario tiene permiso de makro apoyo`;
-                ticket.style.display = 'block';
-            } else {
-                alert('RUC no válido');
-            }
-        });
-    </script>
 </body>
 </html>
