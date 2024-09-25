@@ -31,7 +31,10 @@
         async function validateRUC(ruc) {
             const rucCollection = collection(db, 'validacionRUC');
             const rucDocs = await getDocs(rucCollection);
-            return rucDocs.docs.some(doc => doc.data().RUC === ruc);
+            const validDoc = rucDocs.docs.find(doc => doc.data().RUC === ruc);
+
+            // Devolver el documento válido si existe, de lo contrario, devolver null
+            return validDoc ? { RUC: validDoc.data().RUC, RZ: validDoc.data().RZ } : null;
         }
 
         async function saveRUC(ruc) {
@@ -49,9 +52,9 @@
                 const ticketText = document.getElementById('ticketText');
                 const ticket = document.getElementById('ticket');
 
-                const isValid = await validateRUC(ruc);
-                if (isValid) {
-                    ticketText.innerHTML = `Fecha: ${new Date().toLocaleDateString()}<br>RUC: ${ruc}<br>Este usuario tiene permiso de makro apoyo`;
+                const validRUC = await validateRUC(ruc);
+                if (validRUC) {
+                    ticketText.innerHTML = `Fecha: ${new Date().toLocaleDateString()}<br>RUC: ${validRUC.RUC}<br>Razón Social: ${validRUC.RZ}<br>Este usuario tiene permiso de makro apoyo`;
                     ticket.style.display = 'block';
                     await saveRUC(ruc);
                 } else {
@@ -75,3 +78,4 @@
     </div>
 </body>
 </html>
+
