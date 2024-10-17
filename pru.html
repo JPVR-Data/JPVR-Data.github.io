@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Contacto</title>
+</head>
+<body>
+    <h1>Formulario de Contacto</h1>
+
+    <form id="miFormulario">
+        <label for="nombre">Nombre:</label><br>
+        <input type="text" id="nombre" name="nombre" required><br><br>
+
+        <label for="email">Correo Electrónico:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="comentario">Comentario:</label><br>
+        <textarea id="comentario" name="comentario" required></textarea><br><br>
+
+        <button type="submit">Enviar</button>
+    </form>
+
+    <p id="respuesta"></p>
+
+    <script>
+        document.getElementById('miFormulario').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Captura los datos del formulario
+            const nombre = document.getElementById('nombre').value;
+            const email = document.getElementById('email').value;
+            const comentario = document.getElementById('comentario').value;
+
+            // Crea un objeto con los datos
+            const datos = {
+                nombre: nombre,
+                email: email,
+                comentario: comentario
+            };
+
+            // Enviar los datos al Google Apps Script
+            fetch('https://script.google.com/macros/s/AKfycbw8JzJv_zDirnqwQa9Qsr935dmN0PP1B-_BhrWbZ-b-8Zm2eMC4ULCJAJMdVDTlb5RDYg/exec', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // Asegura que los datos se envíen como JSON
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('respuesta').textContent = data;
+                alert('Datos enviados con éxito');
+                // Reiniciar el formulario
+                document.getElementById('miFormulario').reset();
+            })
+            .catch(err => console.error('Error al enviar los datos:', err));
+        });
+    </script>
+</body>
+</html>
